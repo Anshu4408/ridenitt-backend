@@ -11,8 +11,6 @@ on:
 
 jobs:
   build:
-    jobs:
-  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,19 +35,20 @@ jobs:
         with:
           name: node-app
           path: .
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -57,23 +56,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_394F8B041DC447C09F2B7E9373C7DBB0 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A4DBB7CAA516434EB60FAFF2D1812F0A }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'ridenitt-web'
           slot-name: 'Production'
           package: .
-
-        - name: npm install, prisma generate, build, and test
-
-  run: |
-
-    npm install
-
-    npx prisma generate
-
-    npm run build --if-present
-
-    npm run test --if-present
-          
